@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "routes": [
+    { "src": "/p", "dest": "/p.html" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}

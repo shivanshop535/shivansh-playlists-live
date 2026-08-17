@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="purple">
+<head>
+  <meta charset="UTF-8">
+  <title>Watch Channel — Shivansh Playlists Live</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    :root {
+      --bg: #0d0714;
+      --surface: #170d24;
+      --border: rgba(180, 130, 255, 0.12);
+      --accent: #9b5de5;
+      --accent2: #c77dff;
+      --text: #ffffff;
+      --text2: #b8a9cf;
+    }
+    [data-theme="ocean"]  { --accent:#00b4d8; --accent2:#90e0ef; }
+    [data-theme="purple"] { --accent:#9b5de5; --accent2:#c77dff; }
+    [data-theme="gold"]   { --accent:#f4a261; --accent2:#ffd166; }
+    [data-theme="mint"]   { --accent:#06d6a0; --accent2:#80ffdb; }
+    [data-theme="cyber"]  { --accent:#ff00ff; --accent2:#ff80ff; }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:system-ui,sans-serif; min-height:100vh; display:flex; flex-direction:column; }
+    header { height:60px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 20px; justify-content:space-between; }
+    .back-btn { color:var(--text); text-decoration:none; font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px; }
+    .player-container { flex:1; max-width:1200px; width:100%; margin:20px auto; padding:0 16px; display:flex; flex-direction:column; gap:16px; }
+    .video-wrap { width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; border:1px solid var(--border); position:relative; }
+    video { width:100%; height:100%; object-fit:contain; }
+    .meta-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; align-items:center; gap:16px; }
+    .meta-logo { width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--border); }
+    .meta-title { font-size:18px; font-weight:700; }
+    .meta-sub { font-size:13px; color:var(--text2); margin-top:2px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="back-btn" href="index.html">← Back to Channels</a>
+  <div style="font-weight:700;color:var(--accent2)">Shivansh Playlists Live</div>
+</header>
+
+<div class="player-container">
+  <div class="video-wrap">
+    <video id="video" controls autoplay></video>
+  </div>
+  <div class="meta-card">
+    <img id="ch-logo" class="meta-logo" src="" alt="" onerror="this.style.display='none'">
+    <div>
+      <div id="ch-name" class="meta-title">Loading channel...</div>
+      <div id="ch-group" class="meta-sub">Live Stream</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const savedTheme = localStorage.getItem('sp_theme') || 'purple';
+  document.documentElement.dataset.theme = savedTheme;
+
+  const params = new URLSearchParams(window.location.search);
+  const chId = params.get('id');
+
+  const channels = JSON.parse(localStorage.getItem('sp_channels_data') || '[]');
+  const channel = channels.find(c => c.id === chId) || channels[0];
+
+  if (channel) {
+    document.getElementById('ch-name').textContent = channel.name;
+    document.getElementById('ch-group').textContent = channel.group + ' • Live';
+    if (channel.logo) document.getElementById('ch-logo').src = channel.logo;
+
+    const video = document.getElementById('video');
+    const streamUrl = channel.url;
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(streamUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = streamUrl;
+      video.addEventListener('loadedmetadata', () => video.play());
+    }
+  } else {
+    document.getElementById('ch-name').textContent = 'Channel not found.';
+  }
+</script>
+</body>
+</html>
